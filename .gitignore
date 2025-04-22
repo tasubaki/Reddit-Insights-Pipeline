@@ -1,0 +1,4 @@
+*.conf
+venv/
+airflow/dags/extraction/__pycache__/
+airflow/dags/raw_data/
