@@ -7,13 +7,6 @@ import sys
 import numpy as np
 from validation import validate_input
 
-"""
-Part of Airflow DAG. Takes in one command line argument of format YYYYMMDD. 
-Script will connect to Reddit API and extract top posts from past day
-with no limit. For a small subreddit like Data Engineering, this should extract all posts
-from the past 24 hours.
-"""
-
 # Read Configuration File
 parser = configparser.ConfigParser()
 script_path = pathlib.Path(__file__).parent.resolve()
