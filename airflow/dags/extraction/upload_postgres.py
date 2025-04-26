@@ -71,7 +71,8 @@ def upload_dataframe_to_postgres(df, conn):
 
         create_table_query = """
         CREATE TABLE IF NOT EXISTS reddit_data (
-            id TEXT ,
+            id SERIAL PRIMARY KEY,
+            post_id VARCHAR(50) UNIQUE,
             title TEXT,
             score INTEGER,
             num_comments INTEGER,
@@ -82,7 +83,9 @@ def upload_dataframe_to_postgres(df, conn):
             over_18 BOOLEAN,
             edited BOOLEAN,
             spoiler BOOLEAN,
-            stickied BOOLEAN
+            stickied BOOLEAN,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         """
         cursor.execute(create_table_query)
@@ -92,10 +95,23 @@ def upload_dataframe_to_postgres(df, conn):
         for _, row in df.iterrows():
             insert_query = """
             INSERT INTO reddit_data (
-                id, title, score, num_comments, author,
+                post_id, title, score, num_comments, author,
                 created_utc, url, upvote_ratio, over_18,
                 edited, spoiler, stickied
             ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (post_id) DO UPDATE SET
+                title = EXCLUDED.title,
+                score = EXCLUDED.score,
+                num_comments = EXCLUDED.num_comments,
+                author = EXCLUDED.author,
+                created_utc = EXCLUDED.created_utc,
+                url = EXCLUDED.url,
+                upvote_ratio = EXCLUDED.upvote_ratio,
+                over_18 = EXCLUDED.over_18,
+                edited = EXCLUDED.edited,
+                spoiler = EXCLUDED.spoiler,
+                stickied = EXCLUDED.stickied,
+                updated_at = CURRENT_TIMESTAMP;
             """
             cursor.execute(insert_query, (
                 row['id'], row['title'], row['score'], row['num_comments'], row['author'],
