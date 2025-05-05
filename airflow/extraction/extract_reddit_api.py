@@ -4,13 +4,17 @@ import pandas as pd
 import pathlib
 import praw
 import sys
+import os
 import numpy as np
 from validation import validate_input
 
 # Read Configuration File
 parser = configparser.ConfigParser()
 script_path = pathlib.Path(__file__).parent.resolve()
-config_path = script_path.parent.parent.parent / "configuration.conf"
+if (script_path / "configuration.conf").exists():
+    config_path = script_path / "configuration.conf"
+else:
+    config_path = script_path.parent.parent / "configuration.conf"
 parser.read(config_path)
 
 # Configuration Variables
@@ -96,10 +100,10 @@ def extract_data(posts):
             to_dict = vars(submission)
 
             # 🔍 In ra dữ liệu chi tiết của submission đầu tiên để xem API trả ra những gì
-            if idx == 0:
-                print("🔎 Dữ liệu đầy đủ của submission đầu tiên:")
-                for key, value in to_dict.items():
-                    print(f"{key}: {value}")
+            # if idx == 0:
+            #     print("🔎 Dữ liệu đầy đủ của submission đầu tiên:")
+            #     for key, value in to_dict.items():
+            #         print(f"{key}: {value}")
 
             sub_dict = {field: to_dict[field] for field in POST_FIELDS}
             list_of_items.append(sub_dict)
@@ -135,12 +139,22 @@ def transform_basic(df):
 
 def load_to_csv(extracted_data_df):
     """Save extracted data to CSV file in /airflow/raw_data folder"""
-    output_dir = script_path / ".." / "raw_data"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / f"{output_name}.csv"
+    if is_local():
+        # Nếu local thì lưu ra thư mục raw_data/
+        output_dir = script_path.parent / "raw_data"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_path = output_dir / f"{output_name}.csv"
+    else:
+        # Nếu trên server thì lưu vào /tmp/
+        output_path = pathlib.Path("/tmp") / f"{output_name}.csv"
+
     extracted_data_df.to_csv(output_path, index=False)
     print(f"✅ Dữ liệu raw đã lưu tại: {output_path}")
 
+def is_local():
+    """Detect environment: Local hoặc Airflow"""
+    # Nếu chạy từ thư mục có chứa "airflow", hoặc environment có biến 'AIRFLOW_HOME', thì không phải local
+    return "AIRFLOW_HOME" not in os.environ
 
 if __name__ == "__main__":
     main()

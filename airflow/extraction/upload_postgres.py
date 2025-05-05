@@ -5,15 +5,14 @@ import sys
 import pandas as pd
 from validation import validate_input
 
-"""
-Part of DAG. Take Reddit data and upload to PostgreSQL. Takes one command line argument of format YYYYMMDD. 
-This represents the file downloaded from Reddit, which will be in the /tmp folder.
-"""
 
 # Load DB credentials
 parser = configparser.ConfigParser()
 script_path = pathlib.Path(__file__).parent.resolve()
-config_path = script_path.parent.parent.parent / "configuration.conf"
+if (script_path / "configuration.conf").exists():
+    config_path = script_path / "configuration.conf"
+else:
+    config_path = script_path.parent.parent / "configuration.conf"
 parser.read(config_path)
 
 POSTGRES_HOST = parser.get("postgres_config", "host")
@@ -129,3 +128,5 @@ def upload_dataframe_to_postgres(df, conn):
 
 if __name__ == "__main__":
     main()
+
+

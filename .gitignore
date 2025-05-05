@@ -1,4 +1,7 @@
 *.conf
 venv/
 airflow/dags/extraction/__pycache__/
-airflow/dags/raw_data/
+airflow/raw_data/
+airflow/dags/__pycache__/
+terraform/
+airflow/logs/
