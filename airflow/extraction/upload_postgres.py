@@ -9,11 +9,8 @@ from validation import validate_input
 # Load DB credentials
 parser = configparser.ConfigParser()
 script_path = pathlib.Path(__file__).parent.resolve()
-if (script_path / "configuration.conf").exists():
-    config_path = script_path / "configuration.conf"
-else:
-    config_path = script_path.parent.parent / "configuration.conf"
-parser.read(config_path)
+config_file = "configuration.conf"
+parser.read(f"{script_path}/{config_file}")
 
 POSTGRES_HOST = parser.get("postgres_config", "host")
 POSTGRES_PORT = parser.get("postgres_config", "port")
@@ -28,7 +25,7 @@ except Exception as e:
     sys.exit(1)
 
 FILENAME = f"{output_name}.csv"
-FILE_PATH = f"../raw_data/{FILENAME}"
+FILE_PATH = f"/tmp/{FILENAME}"
 
 def main():
     """Upload CSV file to PostgreSQL"""

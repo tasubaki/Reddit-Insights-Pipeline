@@ -11,11 +11,8 @@ from validation import validate_input
 # Read Configuration File
 parser = configparser.ConfigParser()
 script_path = pathlib.Path(__file__).parent.resolve()
-if (script_path / "configuration.conf").exists():
-    config_path = script_path / "configuration.conf"
-else:
-    config_path = script_path.parent.parent / "configuration.conf"
-parser.read(config_path)
+config_file = "configuration.conf"
+parser.read(f"{script_path}/{config_file}")
 
 # Configuration Variables
 SECRET = parser.get("reddit_config", "secret")  
